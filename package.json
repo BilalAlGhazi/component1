@@ -11,5 +11,16 @@
     "url": "https://git.platform.manulife.io/common-widgets/address-lookup"
   },
   "author": "Bilal Alghazi",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.4",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1"
+  }
 }

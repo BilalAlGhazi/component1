@@ -1,0 +1,15 @@
+{
+  "name": "address-lookup",
+  "version": "0.0.1",
+  "description": "UI component to provide address lookup functionality.",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.platform.manulife.io/common-widgets/address-lookup"
+  },
+  "author": "Bilal Alghazi",
+  "license": "ISC"
+}

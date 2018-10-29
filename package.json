@@ -15,6 +15,7 @@
   "author": "Bilal Alghazi",
   "license": "ISC",
   "dependencies": {
+    "address-service": "0.0.4",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
     "webpack": "^4.23.0"

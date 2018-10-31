@@ -4,6 +4,7 @@ import {
   AddressProvider, 
   ApiProviderEnum
 } from 'address-service';
+import { filter } from "lodash";
 
 class AddressLookup extends Component {
   
@@ -57,27 +58,37 @@ class AddressLookup extends Component {
     return languages.filter(language => regex.test(language.name));
   }
 
-  escapeRegexCharacters = (str) => {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  // inputProps = {
-  //   placeholder: "Type 'c'",
-  //   value: this.state.value,
-  //   onChange: this.onChange
-  // };
-
   onChange = (event, { newValue, method }) => {
     this.setState({
       value: newValue
     });
   };
 
+  onSuggestionSelected = async (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+    if (this.props.onAddressSelected){
+      // Get the selected address information from the API
+      const addressProvider = new AddressProvider().getProvider(ApiProviderEnum.CANADA_POST_API);
+      const AddressDetails = await addressProvider.findAddressDetails({id: suggestion.id});
+      // Make English the default language
+      const selectedLanguage = this.props.language ? this.props.language : "ENG";
+      const FilteredAddressDetails = filter(AddressDetails, { language: selectedLanguage });
+      this.props.onAddressSelected(
+        FilteredAddressDetails[0].streetAddress1,
+        FilteredAddressDetails[0].city,
+        FilteredAddressDetails[0].postalCode,
+        FilteredAddressDetails[0].province,
+        FilteredAddressDetails[0].country,
+        FilteredAddressDetails[0].id,
+        method
+      );
+    }
+  }
+
   render() {
     const inputProps = {
       placeholder: this.props.inputPlaceholder,
-      value: this.state.value,
-      onChange: this.onChange
+      value: this.props.value,
+      onChange: this.props.onChange
     };
     return (
       <div>
@@ -86,8 +97,10 @@ class AddressLookup extends Component {
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
           getSuggestionValue={this.getSuggestionValue}
-          renderSuggestion={this.renderSuggestion}
-          inputProps={inputProps} />
+          renderSuggestion={this.props.renderSuggestion ? this.props.renderSuggestion : this.renderSuggestion}
+          inputProps={inputProps}
+          onSuggestionSelected={this.onSuggestionSelected}
+          theme={this.props.theme} />
       </div>
     );
   }

@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "address-service": "0.0.4",
+    "lodash": "^4.17.11",
     "react": "^16.6.0",
     "react-autosuggest": "^9.4.2",
     "react-autowhatever": "^10.1.2",

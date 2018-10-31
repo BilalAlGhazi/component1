@@ -17,6 +17,8 @@
   "dependencies": {
     "address-service": "0.0.4",
     "react": "^16.6.0",
+    "react-autosuggest": "^9.4.2",
+    "react-autowhatever": "^10.1.2",
     "react-dom": "^16.6.0",
     "webpack": "^4.23.0"
   },
@@ -24,6 +26,7 @@
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.7.0",

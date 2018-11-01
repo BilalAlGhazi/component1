@@ -15,6 +15,8 @@ The AddressLookup component is a React UI component that provides address auto s
 
 ## Installation
 
+### None: installation will not work at the moment as the component is not deployed to the repository.
+
 ```shell
 yarn add address-lookup
 ```
@@ -28,56 +30,78 @@ npm install address-lookup --save
 ## Basic Usage
 
 ```js
+import React, { Component } from 'react';
 import AddressLookup from "address-lookup";
 
-class Example extends React.Component {
-  constructor() {
-    super();
-
-    
+class Example extends Component {
+  
+  constructor(props){
+    super(props);
+    this.state = {
+      value: "",
+      selectedAddress: "",
+      selectedCity: "",
+      selectedPostalCode: "",
+      selectedProvince: "",
+      selectedCountry: ""
+    };
   }
 
-  onChange = (event, { newValue }) => {
+  renderSuggestion = (suggestion, { query, isHighlighted }) => {
+    return (
+        <div>{suggestion.addressText}</div>
+      );
+  }
+
+  onChange = (event, { newValue, method }) => {
     this.setState({
       value: newValue
     });
   };
 
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
-  onSuggestionsFetchRequested = ({ value }) => {
+  onAddressSelected = (addressText, city, postalCode, province, country, addressID, selectionMethod) => {
     this.setState({
-      suggestions: getSuggestions(value)
-    });
-  };
-
-  // Autosuggest will call this function every time you need to clear suggestions.
-  onSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: []
-    });
-  };
+      value: [addressText, postalCode, province].join(", "),
+      selectedAddress: addressText,
+      selectedCity: city,
+      selectedPostalCode: postalCode,
+      selectedProvince: province,
+      selectedCountry: country
+    })
+  }
 
   render() {
-    const { value, suggestions } = this.state;
-
-    // Autosuggest will pass through all these props to the input.
-    const inputProps = {
-      placeholder: 'Type a programming language',
-      value,
-      onChange: this.onChange
-    };
-
-    // Finally, render it!
+    const theme = {
+      container:                'address-lookup__container',
+      containerOpen:            'address-lookup__container--open',
+      input:                    'address-lookup__input',
+      inputOpen:                'address-lookup__input--open',
+      inputFocused:             'address-lookup__input--focused',
+      suggestionsContainer:     'address-lookup__suggestions-container',
+      suggestionsContainerOpen: 'address-lookup__suggestions-container--open',
+      suggestionsList:          'address-lookup__suggestions-list',
+      suggestion:               'address-lookup__suggestion',
+      suggestionFirst:          'address-lookup__suggestion--first',
+      suggestionHighlighted:    'address-lookup__suggestion--highlighted',
+      sectionContainer:         'address-lookup__section-container',
+      sectionContainerFirst:    'address-lookup__section-container--first',
+      sectionTitle:             'address-lookup__section-title'
+    }
+    
     return (
-      <Autosuggest
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-        getSuggestionValue={getSuggestionValue}
-        renderSuggestion={renderSuggestion}
-        inputProps={inputProps}
-      />
+      <div className="App">
+        <header className="App-header">
+          <AddressLookup
+            inputPlaceholder="Enter an address..." 
+            renderSuggestion={this.renderSuggestion}
+            onAddressSelected={this.onAddressSelected}
+            language="ENG"
+            value={this.state.value}
+            onChange={this.onChange}
+            theme={theme}
+          />
+        </header>
+      </div>
     );
   }
 }
@@ -87,132 +111,18 @@ class Example extends React.Component {
 
 | Prop | Type | Required | Description |
 | :--- | :--- | :---: | :--- |
-| [`suggestions`](#suggestions-prop) | Array | ✓ | These are the suggestions that will be displayed. Items can take an arbitrary shape. |
-| [`onSuggestionsFetchRequested`](#on-suggestions-fetch-requested-prop) | Function | ✓ | Will be called every time you need to recalculate `suggestions`. |
-| [`onSuggestionsClearRequested`](#on-suggestions-clear-requested-prop) | Function | ✓[*](#on-suggestions-clear-requested-prop-note) | Will be called every time you need to set `suggestions` to `[]`. |
-| [`getSuggestionValue`](#get-suggestion-value-prop) | Function | ✓ | Implement it to teach Autosuggest what should be the input value when suggestion is clicked. |
-| [`renderSuggestion`](#render-suggestion-prop) | Function | ✓ | Use your imagination to define how suggestions are rendered. |
-| [`inputProps`](#input-props-prop) | Object | ✓ | Pass through arbitrary props to the input. It must contain at least `value` and `onChange`. |
-| [`onSuggestionSelected`](#on-suggestion-selected-prop) | Function | | Will be called every time suggestion is selected via mouse or keyboard. |
-| [`onSuggestionHighlighted`](#on-suggestion-highlighted-prop) | Function | | Will be called every time the highlighted suggestion changes. |
-| [`shouldRenderSuggestions`](#should-render-suggestions-prop) | Function | | When the input is focused, Autosuggest will consult this function when to render suggestions. Use it, for example, if you want to display suggestions when input value is at least 2 characters long. |
+| [`renderSuggestion`](#render-suggestion-prop) | Function | ✓ | render the autosuggest address. |
+| [`onAddressSelected`](#on-address-selected-prop) | Function | | Will be called every time an address is selected via mouse or keyboard. |
+| [`onChange`](#props-on-change) | Function | ✓ | Will be called everytime the input is changed. |
+| [`onBlur`](#props-on-blur) | Function | ✓ | Will be called everytime the input lost the focus. |
+| [`onAddressHighlighted`](#on-address-highlighted-prop) | Function | | Will be called every time the highlighted suggestion changes. |
 | [`alwaysRenderSuggestions`](#always-render-suggestions-prop) | Boolean | | Set it to `true` if you'd like to render suggestions even when the input is not focused. |
 | [`highlightFirstSuggestion`](#highlight-first-suggestion-prop) | Boolean | | Set it to `true` if you'd like Autosuggest to automatically highlight the first suggestion. |
 | [`focusInputOnSuggestionClick`](#focus-input-on-suggestion-click-prop) | Boolean | | Set it to `false` if you don't want Autosuggest to keep the input focused when suggestions are clicked/tapped. |
-| [`multiSection`](#multi-section-prop) | Boolean | | Set it to `true` if you'd like to display suggestions in multiple sections (with optional titles). |
-| [`renderSectionTitle`](#render-section-title-prop) | Function | ✓<br>when `multiSection={true}` | Use your imagination to define how section titles are rendered. |
-| [`getSectionSuggestions`](#get-section-suggestions-prop) | Function | ✓<br>when `multiSection={true}` | Implement it to teach Autosuggest where to find the suggestions for every section. |
 | [`renderInputComponent`](#render-input-component-prop) | Function | | Use it only if you need to customize the rendering of the input. |
 | [`renderSuggestionsContainer`](#render-suggestions-container-prop) | Function | | Use it if you want to customize things inside the suggestions container beyond rendering the suggestions themselves. |
-| [`theme`](#theme-prop) | Object | | Use your imagination to style the Autosuggest. |
-| [`id`](#id-prop) | String | | Use it only if you have multiple Autosuggest components on a page. |
-
-<a name="suggestions-prop"></a>
-#### suggestions (required)
-
-Array of suggestions to display. The only requirement is that `suggestions` is an array. Items in this array can take an arbitrary shape.
-
-For a plain list of suggestions, every item in `suggestions` represents a single suggestion. It's up to you what shape every suggestion takes. For example:
-
-```js
-const suggestions = [
-  {
-    text: 'Apple'
-  },
-  {
-    text: 'Banana'
-  },
-  {
-    text: 'Cherry'
-  },
-  {
-    text: 'Grapefruit'
-  },
-  {
-    text: 'Lemon'
-  }
-];
-```
-
-For [multiple sections](#multi-section-prop), every item in `suggestions` represents a single section. Again, it's up to you what shape every section takes. For example:
-
-```js
-const suggestions = [
-  {
-    title: 'A',
-    suggestions: [
-      {
-        id: '100',
-        text: 'Apple'
-      },
-      {
-        id: '101',
-        text: 'Apricot'
-      }
-    ]
-  },
-  {
-    title: 'B',
-    suggestions: [
-      {
-        id: '102',
-        text: 'Banana'
-      }
-    ]
-  },
-  {
-    title: 'C',
-    suggestions: [
-      {
-        id: '103',
-        text: 'Cherry'
-      }
-    ]
-  }
-];
-```
-
-<a name="on-suggestions-fetch-requested-prop"></a>
-#### onSuggestionsFetchRequested (required)
-
-This function will be called every time you might need to update [`suggestions`](#suggestions-prop). It has the following signature:
-
-```js
-function onSuggestionsFetchRequested({ value, reason })
-```
-
-where:
-
-* `value` - the current value of the input
-* `reason` - string describing why `onSuggestionsFetchRequested` was called. The possible values are:
-  * `'input-changed'` - user typed something
-  * `'input-focused'` - input was focused
-  * `'escape-pressed'` - user pressed <kbd>Escape</kbd> to clear the input (and suggestions are shown for empty input)
-  * `'suggestions-revealed'` - user pressed <kbd>Up</kbd> or <kbd>Down</kbd> to reveal suggestions
-  * `'suggestion-selected'` - user selected a suggestion when `alwaysRenderSuggestions={true}`
-
-<a name="#on-suggestions-clear-requested-prop"></a>
-#### onSuggestionsClearRequested (required unless `alwaysRenderSuggestions={true}`)
-
-This function will be called every time you need to clear [`suggestions`](#suggestions-prop).
-
-All you have to do in this function is to set `suggestions` to `[]`.
-
-<a name="on-suggestions-clear-requested-prop-note"></a>
-**Note:** When `alwaysRenderSuggestions={true}`, you don't have to implement this function.
-
-<a name="get-suggestion-value-prop"></a>
-#### getSuggestionValue (required)
-
-When user navigates the suggestions using the <kbd>Up</kbd> and <kbd>Down</kbd> keys, [the input value should be set according to the highlighted suggestion](https://rawgit.com/w3c/aria-practices/master/aria-practices-DeletedSectionsArchive.html#autocomplete). You design how suggestion is modelled. Therefore, it's your responsibility to tell Autosuggest how to map suggestions to input values.
-
-This function gets the suggestion in question, and it should return a string. For example:
-
-```js
-function getSuggestionValue(suggestion) {
-  return suggestion.text;
-}
-```
+| [`theme`](#theme-prop) | Object | | Pass the css classes to style the component. |
+| [`id`](#id-prop) | String | | Useed to identify the object, mandatory if you have multiple Addresslookup components on the same page. |
 
 <a name="render-suggestion-prop"></a>
 #### renderSuggestion (required)
@@ -241,25 +151,10 @@ function renderSuggestion(suggestion) {
 }
 ```
 
-**Important:** `renderSuggestion` must be a pure function (we optimize rendering performance based on this assumption).
+**Important:** `renderSuggestion` must be a pure function (rendering performance is optimized based on this assumption).
 
-<a name="input-props-prop"></a>
-#### inputProps (required)
-
-Autosuggest is a [controlled component](https://facebook.github.io/react/docs/forms.html#controlled-components). Therefore, you MUST pass at least a `value` and an `onChange` callback to the input. You can pass any other props as well. For example:
-
-```js
-const inputProps = {
-  value,          // usually comes from the application state
-  onChange,       // called every time the input value changes
-  onBlur,         // called when the input loses focus, e.g. when user presses Tab
-  type: 'search',
-  placeholder: 'Enter city or postcode'
-};
-```
-
-<a name="input-props-on-change"></a>
-##### inputProps.onChange (required)
+<a name="props-on-change"></a>
+##### onChange (required)
 
 The signature is:
 
@@ -278,8 +173,8 @@ where:
   * `'click'` - user clicked (or tapped) on suggestion
   * `'type'` - none of the methods above (usually means that user typed something, but can also be that they pressed Backspace, pasted something into the input, etc.)
 
-<a name="input-props-on-blur"></a>
-##### inputProps.onBlur (optional)
+<a name="props-on-blur"></a>
+##### onBlur (optional)
 
 The signature is:
 
@@ -291,68 +186,43 @@ where:
 
 * `highlightedSuggestion` - the suggestion that was highlighted just before the input lost focus, or `null` if there was no highlighted suggestion.
 
-<a name="on-suggestion-selected-prop"></a>
-#### onSuggestionSelected (optional)
+<a name="on-address-selected-prop"></a>
+#### onAddressSelected (optional)
 
-This function is called when suggestion is selected. It has the following signature:
+This function is called when address is selected. It has the following signature:
 
 ```js
-function onSuggestionSelected(event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method })
+function onSuggestionSelected(addressText, city, postalCode, province, country, addressID, selectionMethod })
 ```
 
 where:
 
-* `suggestion` - the selected suggestion
-* `suggestionValue` - the value of the selected suggestion (equivalent to `getSuggestionValue(suggestion)`)
-* `suggestionIndex` - the index of the selected suggestion in the `suggestions` array
-* `sectionIndex` - when rendering [multiple sections](#multiSectionProp), this will be the section index (in [`suggestions`](#suggestions-prop)) of the selected suggestion. Otherwise, it will be `null`.
-* `method` - string describing how user selected the suggestion. The possible values are:
+* `addressText` - the selected street address
+* `city` - the selected city
+* `postalCode` - the selected postal code
+* `province` - the selected province
+* `country` - the selected country
+* `addressID` - the id of the selected address as returned by the address service provider
+* `selectionMethod` - string describing how user selected the suggestion. The possible values are:
   * `'click'` - user clicked (or tapped) on the suggestion
   * `'enter'` - user selected the suggestion using <kbd>Enter</kbd>
 
-<a name="on-suggestion-highlighted-prop"></a>
-#### onSuggestionHighlighted (optional)
+<a name="on-address-highlighted-prop"></a>
+#### onAddressHighlighted (optional)
 
-This function is called when the highlighted suggestion changes. It has the following signature:
+This function is called when the highlighted address suggestion changes. It has the following signature:
 
 ```js
-function onSuggestionHighlighted({ suggestion })
+function onAddressHighlighted({ suggestion })
 ```
 
 where:
 * `suggestion` - the highlighted suggestion, or `null` if there is no highlighted suggestion.
 
-<a name="should-render-suggestions-prop"></a>
-#### shouldRenderSuggestions (optional)
-
-By default, suggestions are rendered when the input isn't blank. Feel free to override this behaviour.
-
-This function gets the current value of the input, and it should return a boolean.
-
-For example, to display suggestions only when input value is at least 3 characters long, do:
-
-```js
-function shouldRenderSuggestions(value) {
-  return value.trim().length > 2;
-}
-```
-
-When `shouldRenderSuggestions` returns `true`, **suggestions will be rendered only when the input is focused**.
-
-If you would like to render suggestions regardless of whether the input is focused or not, set `alwaysRenderSuggestions={true}` (`shouldRenderSuggestions` is ignored in this case).
-
 <a name="always-render-suggestions-prop"></a>
 #### alwaysRenderSuggestions (optional)
 
 Set `alwaysRenderSuggestions={true}` if you'd like to always render the suggestions.
-
-**Important:** Make sure that the initial value of `suggestions` corresponds to the initial value of `inputProps.value`. For example, if you'd like to show all the suggestions when the input is empty, your initial state should be something like:
-```js
-this.state = {
-  value: '',
-  suggestions: allSuggestions
-};
-```
 
 <a name="highlight-first-suggestion-prop"></a>
 #### highlightFirstSuggestion (optional)
@@ -373,45 +243,6 @@ You can do something like this:
 ```
 
 where `isMobile` is a boolean describing whether Autosuggest operates on a mobile device or not. You can use [kaimallea/isMobile](https://github.com/kaimallea/isMobile), for example, to determine that.
-
-<a name="multi-section-prop"></a>
-#### multiSection (optional)
-
-By default, Autosuggest renders a plain list of suggestions.
-
-If you'd like to have multiple sections (with optional titles), set `multiSection={true}`.
-
-<a name="render-section-title-prop"></a>
-#### renderSectionTitle (required when `multiSection={true}`)
-
-When rendering [multiple sections](#multi-section-prop), you need to tell Autosuggest how to render a section title.
-
-This function gets the section to render (an item in the [suggestions](#suggestions-prop) array), and it should return a string or a `ReactElement`. For example:
-
-```js
-function renderSectionTitle(section) {
-  return (
-    <strong>{section.title}</strong>
-  );
-}
-```
-
-If `renderSectionTitle` returns `null` or `undefined`, section title is not rendered.
-
-<a name="get-section-suggestions-prop"></a>
-#### getSectionSuggestions (required when `multiSection={true}`)
-
-When rendering [multiple sections](#multi-section-prop), you need to tell Autosuggest where to find the suggestions for a given section.
-
-This function gets the section to render (an item in the [suggestions](#suggestions-prop) array), and it should return an array of suggestions to render in the given section. For example:
-
-```js
-function getSectionSuggestions(section) {
-  return section.suggestions;
-}
-```
-
-**Note:** Sections with no suggestions are not rendered.
 
 <a name="render-input-component-prop"></a>
 #### renderInputComponent (optional)
@@ -523,20 +354,20 @@ When not specified, `theme` defaults to:
 
 ```js
 {
-  container:                'react-autosuggest__container',
-  containerOpen:            'react-autosuggest__container--open',
-  input:                    'react-autosuggest__input',
-  inputOpen:                'react-autosuggest__input--open',
-  inputFocused:             'react-autosuggest__input--focused',
-  suggestionsContainer:     'react-autosuggest__suggestions-container',
-  suggestionsContainerOpen: 'react-autosuggest__suggestions-container--open',
-  suggestionsList:          'react-autosuggest__suggestions-list',
-  suggestion:               'react-autosuggest__suggestion',
-  suggestionFirst:          'react-autosuggest__suggestion--first',
-  suggestionHighlighted:    'react-autosuggest__suggestion--highlighted',
-  sectionContainer:         'react-autosuggest__section-container',
-  sectionContainerFirst:    'react-autosuggest__section-container--first',
-  sectionTitle:             'react-autosuggest__section-title'
+  container:                'address-lookup__container',
+  containerOpen:            'address-lookup__container--open',
+  input:                    'address-lookup__input',
+  inputOpen:                'address-lookup__input--open',
+  inputFocused:             'address-lookup__input--focused',
+  suggestionsContainer:     'address-lookup__suggestions-container',
+  suggestionsContainerOpen: 'address-lookup__suggestions-container--open',
+  suggestionsList:          'address-lookup__suggestions-list',
+  suggestion:               'address-lookup__suggestion',
+  suggestionFirst:          'address-lookup__suggestion--first',
+  suggestionHighlighted:    'address-lookup__suggestion--highlighted',
+  sectionContainer:         'address-lookup__section-container',
+  sectionContainerFirst:    'address-lookup__section-container--first',
+  sectionTitle:             'address-lookup__section-title'
 }
 ```
 
@@ -557,16 +388,3 @@ When rendering multiple Autosuggest components on a page, make sure to give them
 <Autosuggest id="source" ... />
 <Autosuggest id="destination" ... />
 ```
-
-## Development
-
-```shell
-npm install
-npm start
-```
-
-Now, open `http://localhost:3000/demo/dist/index.html` and start hacking!
-
-## License
-
-[MIT](http://moroshko.mit-license.org)

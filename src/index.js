@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import Autosuggest from "react-autosuggest";
 import {
   AddressProvider, 
-  ApiProviderEnum
+  AddressServiceProvider,
+  ServiceProvider,
+  LanguageCode,
+  CountryCode
 } from 'address-service';
 import { filter } from "lodash";
 
@@ -34,8 +37,8 @@ class AddressLookup extends Component {
 
   onSuggestionsFetchRequested = async ({ value }) => {
     // Fetch value from Canada Post API
-    const addressProvider = new AddressProvider().getProvider(ApiProviderEnum.CANADA_POST_API);
-    const AddressSearchList = await addressProvider.findAddress({searchTerm: value, country: "CANADA"});
+    const addressProvider = AddressServiceProvider.getAddressService(ServiceProvider.CanadaPostService)
+    const AddressSearchList = await addressProvider.findAddress({searchTerm: value, language: LanguageCode.English, country: CountryCode.Canada});
 
     this.setState({
       suggestions: AddressSearchList
@@ -67,8 +70,8 @@ class AddressLookup extends Component {
   onSuggestionSelected = async (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
     if (this.props.onAddressSelected){
       // Get the selected address information from the API
-      const addressProvider = new AddressProvider().getProvider(ApiProviderEnum.CANADA_POST_API);
-      const AddressDetails = await addressProvider.findAddressDetails({id: suggestion.id});
+      const addressProvider = AddressServiceProvider.getAddressService(ServiceProvider.CanadaPostService)
+      const AddressDetails = await addressProvider.findAddressDetails({id: suggestion.id, language: LanguageCode.English});
       // Make English the default language
       const selectedLanguage = this.props.language ? this.props.language : "ENG";
       const FilteredAddressDetails = filter(AddressDetails, { language: selectedLanguage });
@@ -88,7 +91,8 @@ class AddressLookup extends Component {
     const inputProps = {
       placeholder: this.props.inputPlaceholder,
       value: this.props.value,
-      onChange: this.props.onChange
+      onChange: this.props.onChange,
+      onBlur: this.props.onBlur
     };
     return (
       <div>
@@ -100,6 +104,12 @@ class AddressLookup extends Component {
           renderSuggestion={this.props.renderSuggestion ? this.props.renderSuggestion : this.renderSuggestion}
           inputProps={inputProps}
           onSuggestionSelected={this.onSuggestionSelected}
+          renderSuggestionsContainer={this.props.renderSuggestionsContainer}
+          renderInputComponent={this.props.renderInputComponent}
+          focusInputOnSuggestionClick={this.props.focusInputOnSuggestionClick}
+          highlightFirstSuggestion={this.props.highlightFirstSuggestion}
+          alwaysRenderSuggestions={this.props.alwaysRenderSuggestions}
+          onSuggestionHighlighted={this.props.onAddressHighlighted}
           theme={this.props.theme} />
       </div>
     );

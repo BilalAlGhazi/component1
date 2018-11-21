@@ -13,7 +13,7 @@ class AddressLookup extends Component {
   constructor(props){
     super(props);
     let defaultLaguage = LanguageCode.English;
-    if (this.props.language === "FRE"){
+    if (this.props.language === "fr"){
       defaultLaguage = LanguageCode.French;
     }
     this.state = {

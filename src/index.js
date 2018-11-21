@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Autosuggest from "react-autosuggest";
 import {
-  AddressProvider, 
   AddressServiceProvider,
   ServiceProvider,
   LanguageCode,
@@ -46,7 +45,6 @@ class AddressLookup extends Component {
   };
 
   onSuggestionsFetchRequested = async ({ value }) => {
-    // console.log("Fetching addresses", this.state.nestedAddressID);
     // Fetch value from Canada Post API
     const addressProvider = AddressServiceProvider.getAddressService(ServiceProvider.CanadaPostService)
     let AddressSearchList;
